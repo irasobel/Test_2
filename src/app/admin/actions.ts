@@ -1,7 +1,9 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { AuthError } from "next-auth";
-import { signIn, signOut } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validation";
 
 export interface LoginState {
@@ -49,4 +51,15 @@ export async function loginAction(
 
 export async function logoutAction() {
   await signOut({ redirectTo: "/admin/login" });
+}
+
+/** פתיחה/סגירה ידנית של מבחן לנבחנים חדשים. אינה משפיעה על הגשות שכבר בתהליך. */
+export async function setExamPublished(examId: string, isPublished: boolean) {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error("יש להתחבר מחדש");
+  }
+
+  await prisma.exam.update({ where: { id: examId }, data: { isPublished } });
+  revalidatePath("/admin");
 }

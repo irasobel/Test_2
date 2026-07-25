@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { logoutAction } from "./actions";
+import { logoutAction, setExamPublished } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -84,12 +84,24 @@ export default async function AdminDashboardPage() {
                 </span>
               </div>
 
-              <Link
-                href={`/admin/exams/${exam.id}`}
-                className="mt-4 inline-block rounded-lg bg-sky-700 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-900 focus-visible:ring-offset-2"
-              >
-                צפייה בתוצאות
-              </Link>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Link
+                  href={`/admin/exams/${exam.id}`}
+                  className="inline-block rounded-lg bg-sky-700 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-900 focus-visible:ring-offset-2"
+                >
+                  צפייה בתוצאות
+                </Link>
+                <form
+                  action={setExamPublished.bind(null, exam.id, !exam.isPublished)}
+                >
+                  <button
+                    type="submit"
+                    className="rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-700"
+                  >
+                    {exam.isPublished ? "סגור מבחן" : "פתח מבחן"}
+                  </button>
+                </form>
+              </div>
             </li>
           ))}
         </ul>
