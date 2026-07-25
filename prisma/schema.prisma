@@ -7,7 +7,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // חיבור דרך ה-pooler — מתאים לריצה ב-serverless.
+  url       = env("DATABASE_URL")
+  // חיבור ישיר, נדרש למיגרציות: הן אינן עוברות דרך PgBouncer.
+  // בהרצה מקומית מול Postgres רגיל אפשר להצביע על אותה כתובת.
+  directUrl = env("DIRECT_URL")
 }
 
 /// מרצה / מנהל מערכת — מתחבר עם אימייל וסיסמה
