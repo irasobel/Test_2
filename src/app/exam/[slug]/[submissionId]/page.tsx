@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { getExamQuestionsForStudent } from "@/lib/exam-service";
+import { getExamQuestionsForStudent, isPastDeadline } from "@/lib/exam-service";
 import { prisma } from "@/lib/prisma";
 import { ExamForm } from "@/components/ExamForm";
 import { submitExamAction } from "../actions";
@@ -28,7 +28,7 @@ export default async function ExamAttemptPage({
   if (submission.status !== "IN_PROGRESS") {
     redirect(`/exam/${slug}/${submissionId}/result`);
   }
-  if (submission.deadlineAt.getTime() <= Date.now()) {
+  if (isPastDeadline(submission.deadlineAt)) {
     redirect(`/exam/${slug}/${submissionId}/result`);
   }
 

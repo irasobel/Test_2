@@ -29,29 +29,31 @@ function describeDuration(ms: number): string {
 }
 
 export function ExamTimer({ deadlineAt, serverNow, onExpire }: ExamTimerProps) {
-  // ההפרש בין שעון הדפדפן לשעון השרת נמדד פעם אחת ומקוזז לאורך הספירה.
-  const clockOffsetRef = useRef(
-    Date.now() - new Date(serverNow).getTime(),
-  );
   const deadlineMs = new Date(deadlineAt).getTime();
 
-  const [remaining, setRemaining] = useState(() =>
-    Math.max(0, deadlineMs - (Date.now() - clockOffsetRef.current)),
+  // ההפרש בין שעון הדפדפן לשעון השרת נמדד פעם אחת בטעינה ומקוזז לאורך הספירה,
+  // כדי ששעון מוקדם או מאוחר אצל הנבחן לא ישנה את הזמן שנותר.
+  const [clockOffset] = useState(
+    () => Date.now() - new Date(serverNow).getTime(),
   );
 
-  const expiredRef = useRef(false);
+  const [remaining, setRemaining] = useState(() =>
+    Math.max(0, deadlineMs - (Date.now() - clockOffset)),
+  );
+
   const onExpireRef = useRef(onExpire);
-  onExpireRef.current = onExpire;
+  useEffect(() => {
+    onExpireRef.current = onExpire;
+  }, [onExpire]);
 
   useEffect(() => {
+    let expired = false;
+
     const tick = () => {
-      const left = Math.max(
-        0,
-        deadlineMs - (Date.now() - clockOffsetRef.current),
-      );
+      const left = Math.max(0, deadlineMs - (Date.now() - clockOffset));
       setRemaining(left);
-      if (left === 0 && !expiredRef.current) {
-        expiredRef.current = true;
+      if (left === 0 && !expired) {
+        expired = true;
         onExpireRef.current();
       }
     };
@@ -59,7 +61,7 @@ export function ExamTimer({ deadlineAt, serverNow, onExpire }: ExamTimerProps) {
     tick();
     const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, [deadlineMs]);
+  }, [deadlineMs, clockOffset]);
 
   const isUrgent = remaining <= 5 * 60_000;
   const isCritical = remaining <= 60_000;
@@ -80,9 +82,7 @@ export function ExamTimer({ deadlineAt, serverNow, onExpire }: ExamTimerProps) {
       </div>
       {/* מוכרז כל דקה בלבד, כדי לא להציף את קורא המסך בכל שנייה. */}
       <div role="status" aria-live="polite" className="sr-only">
-        {remaining % 60_000 < 1000
-          ? `נותרו ${describeDuration(remaining)}`
-          : ""}
+        {remaining % 60_000 < 1000 ? `נותרו ${describeDuration(remaining)}` : ""}
       </div>
     </div>
   );

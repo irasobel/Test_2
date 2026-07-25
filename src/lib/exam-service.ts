@@ -245,3 +245,11 @@ export async function finalizeSubmission(
 export function remainingMs(deadlineAt: Date): number {
   return Math.max(0, deadlineAt.getTime() - Date.now());
 }
+
+/**
+ * האם חלף מועד הסיום, לפי שעון השרת.
+ * קריאת השעון מרוכזת כאן ולא בקומפוננטות, שנדרשות להיות טהורות.
+ */
+export function isPastDeadline(deadlineAt: Date): boolean {
+  return deadlineAt.getTime() <= Date.now();
+}

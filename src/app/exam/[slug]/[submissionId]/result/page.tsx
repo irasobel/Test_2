@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { finalizeSubmission } from "@/lib/exam-service";
+import { finalizeSubmission, isPastDeadline } from "@/lib/exam-service";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +32,7 @@ export default async function ExamResultPage({
   // נבחן שהגיע לכאן אחרי שהזמן אזל בלי ללחוץ "הגשה" — סוגרים ומנקדים כאן.
   if (
     submission.status === "IN_PROGRESS" &&
-    submission.deadlineAt.getTime() <= Date.now()
+    isPastDeadline(submission.deadlineAt)
   ) {
     await finalizeSubmission(submissionId, { expired: true });
     submission = await prisma.submission.findUniqueOrThrow({
