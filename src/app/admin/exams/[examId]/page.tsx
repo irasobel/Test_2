@@ -90,7 +90,7 @@ export default async function AdminExamResultsPage({
       </dl>
 
       <div className="mt-8 overflow-x-auto">
-        <table className="w-full min-w-[40rem] border-collapse bg-white text-right">
+        <table className="w-full min-w-[40rem] border-collapse bg-white text-start">
           <caption className="sr-only">
             טבלת הגשות למבחן {exam.title}
           </caption>

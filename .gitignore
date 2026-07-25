@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# התבנית עצמה כן נשמרת בגיט — היא אינה מכילה סודות
+!.env.example
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
